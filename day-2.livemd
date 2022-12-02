@@ -1,0 +1,139 @@
+# Day 2
+
+```elixir
+Mix.install([
+  {:kino_aoc, git: "https://github.com/ljgago/kino_aoc"}
+])
+```
+
+## Helper
+
+<!-- livebook:{"attrs":{"day":"2","session_secret":"AOC_SESSION","variable":"puzzle_input","year":"2022"},"kind":"Elixir.KinoAOC.HelperCell","livebook_object":"smart_cell"} -->
+
+```elixir
+{:ok, puzzle_input} = KinoAOC.download_puzzle("2022", "2", System.fetch_env!("LB_AOC_SESSION"))
+```
+
+A -> Rock
+
+B -> Paper
+
+C -> Scissor
+
+---
+
+X -> Rock
+
+Y -> Paper
+
+Z -> Scissor
+
+---
+
+### Score
+
+1 -> Rock
+
+2 -> Paper
+
+3 -> Scissor
+
+Plus 0(lost) | 3(draw) | 6(win)
+
+```elixir
+puzzle_input =
+  puzzle_input
+  |> String.split("\n", trim: true)
+  |> Enum.map(&String.split/1)
+```
+
+## Part 1
+
+```elixir
+defmodule GameLogic do
+  def score(enemy_move, player_move) do
+    case move_decision(enemy_move, player_move) do
+      {:win, point} -> point + 6
+      {:loss, point} -> point + 0
+      {:draw, point} -> point + 3
+    end
+  end
+
+  def move_decision("A", player_move) do
+    case player_move do
+      "X" -> {:draw, 1}
+      "Y" -> {:win, 2}
+      "Z" -> {:loss, 3}
+    end
+  end
+
+  def move_decision("B", player_move) do
+    case player_move do
+      "X" -> {:loss, 1}
+      "Y" -> {:draw, 2}
+      "Z" -> {:win, 3}
+    end
+  end
+
+  def move_decision("C", player_move) do
+    case player_move do
+      "X" -> {:win, 1}
+      "Y" -> {:loss, 2}
+      "Z" -> {:draw, 3}
+    end
+  end
+end
+```
+
+```elixir
+Enum.reduce(puzzle_input, 0, fn [enemy_move, player_move], total_score ->
+  total_score + GameLogic.score(enemy_move, player_move)
+end)
+```
+
+## Part 2
+
+```elixir
+defmodule GameLogicPart2 do
+  def score(enemy_move, player_move) do
+    case move_decision(enemy_move, player_move) do
+      {:win, point} -> point + 6
+      {:loss, point} -> point + 0
+      {:draw, point} -> point + 3
+    end
+  end
+
+  # Rock
+  def move_decision("A", player_move) do
+    case player_move do
+      "X" -> {:loss, 3}
+      "Y" -> {:draw, 1}
+      "Z" -> {:win, 2}
+    end
+  end
+
+  # Paper
+  def move_decision("B", player_move) do
+    case player_move do
+      "X" -> {:loss, 1}
+      "Y" -> {:draw, 2}
+      "Z" -> {:win, 3}
+    end
+  end
+
+  # Scissor
+  def move_decision("C", player_move) do
+    case player_move do
+      "X" -> {:loss, 2}
+      "Y" -> {:draw, 3}
+      "Z" -> {:win, 1}
+    end
+  end
+end
+```
+
+```elixir
+Enum.reduce(puzzle_input, 0, fn [enemy_move, player_move], total_score ->
+  total_score + GameLogicPart2.score(enemy_move, player_move)
+end)
+```
