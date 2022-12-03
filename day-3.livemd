@@ -1,0 +1,80 @@
+# Day 3
+
+```elixir
+Mix.install([
+  {:kino_aoc, git: "https://github.com/ljgago/kino_aoc"}
+])
+```
+
+## Helper
+
+<!-- livebook:{"attrs":{"day":"3","session_secret":"AOC_SESSION","variable":"puzzle_input","year":"2022"},"kind":"Elixir.KinoAOC.HelperCell","livebook_object":"smart_cell"} -->
+
+```elixir
+{:ok, puzzle_input} = KinoAOC.download_puzzle("2022", "3", System.fetch_env!("LB_AOC_SESSION"))
+```
+
+```elixir
+puzzle_input =
+  puzzle_input
+  |> String.split("\n", trim: true)
+```
+
+## Part 1
+
+```elixir
+duplicate_finder = fn {first_string, second_string} ->
+  first_string = String.split(first_string, "", trim: true)
+  second_string = String.split(second_string, "", trim: true)
+
+  MapSet.intersection(MapSet.new(first_string), MapSet.new(second_string))
+  |> MapSet.to_list()
+  |> List.to_string()
+end
+
+duplicates =
+  puzzle_input
+  |> Enum.map(fn rucksack_items ->
+    String.split_at(rucksack_items, div(String.length(rucksack_items), 2))
+  end)
+  |> Enum.map(fn items -> duplicate_finder.(items) end)
+```
+
+```elixir
+defmodule Priority do
+  @characters_list ((?a..?z |> Enum.map(& &1)) ++ (?A..?Z |> Enum.map(& &1)))
+                   |> List.to_string()
+                   |> String.split("", trim: true)
+
+  def get_priority(character) do
+    Enum.find_index(@characters_list, fn c -> c == character end) + 1
+  end
+end
+```
+
+```elixir
+Enum.reduce(duplicates, 0, fn char, sum ->
+  sum + Priority.get_priority(char)
+end)
+```
+
+## Part 2
+
+```elixir
+puzzle_input =
+  puzzle_input
+  |> Enum.chunk_every(3)
+  |> Enum.reduce(0, fn [first, second, third], sum ->
+    first_string = String.split(first, "", trim: true)
+    second_string = String.split(second, "", trim: true)
+    third_string = String.split(third, "", trim: true)
+
+    duplicate =
+      MapSet.intersection(MapSet.new(first_string), MapSet.new(second_string))
+      |> MapSet.intersection(MapSet.new(third_string))
+      |> MapSet.to_list()
+      |> List.to_string()
+
+    sum + Priority.get_priority(duplicate)
+  end)
+```
