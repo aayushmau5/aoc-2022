@@ -1,0 +1,54 @@
+# Day 4
+
+```elixir
+Mix.install([
+  {:kino_aoc, git: "https://github.com/ljgago/kino_aoc"}
+])
+```
+
+## Helper
+
+<!-- livebook:{"attrs":{"day":"4","session_secret":"AOC_SESSION","variable":"puzzle_input","year":"2022"},"kind":"Elixir.KinoAOC.HelperCell","livebook_object":"smart_cell"} -->
+
+```elixir
+{:ok, puzzle_input} = KinoAOC.download_puzzle("2022", "4", System.fetch_env!("LB_AOC_SESSION"))
+```
+
+```elixir
+puzzle_input =
+  puzzle_input
+  |> String.split("\n", trim: true)
+  |> Enum.map(fn ranges ->
+    [first_range, second_range] = String.split(ranges, ",")
+    [first_range_start, first_range_end] = String.split(first_range, "-")
+    [second_range_start, second_range_end] = String.split(second_range, "-")
+    first_range = String.to_integer(first_range_start)..String.to_integer(first_range_end)
+    second_range = String.to_integer(second_range_start)..String.to_integer(second_range_end)
+    {MapSet.new(first_range), MapSet.new(second_range)}
+  end)
+```
+
+## Part 1
+
+```elixir
+puzzle_input
+|> Enum.reduce(0, fn {first_range, second_range}, sum ->
+  case MapSet.subset?(first_range, second_range) ||
+         MapSet.subset?(second_range, first_range) do
+    false -> sum
+    true -> sum + 1
+  end
+end)
+```
+
+## Part 2
+
+```elixir
+puzzle_input
+|> Enum.reduce(0, fn {first_range, second_range}, sum ->
+  case MapSet.disjoint?(first_range, second_range) do
+    false -> sum + 1
+    true -> sum
+  end
+end)
+```
